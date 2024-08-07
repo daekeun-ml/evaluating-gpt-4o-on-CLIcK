@@ -3,6 +3,7 @@ import multiprocessing as mp
 from typing import Tuple
 
 import openai
+from openai import AzureOpenAI, RateLimitError
 import pandas as pd
 from tqdm import tqdm
 from dotenv import load_dotenv
@@ -66,8 +67,17 @@ def get_answer(x) -> str:
 
 def get_pred(x) -> Tuple[str, str]:
     response = (
+
+        #  client.chat.completions.create(
+        #     model=MODEL_VERSION,
+        #     messages=[{"role": "user", "content": get_prompt(x)}],
+        #     #response_format = {'type': "json_object"},
+        #     temperature=0.0,
+        #     #**kwargs    
+        # )
+
         client.chat.completions.create(
-            model=MODEL_VERSION,
+            model=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
             messages=[{"role": "user", "content": get_prompt(x)}],
             temperature=0.0,
         )
@@ -94,13 +104,21 @@ def get_pred(x) -> Tuple[str, str]:
 
 
 if __name__ == "__main__":
-    MODEL_VERSION = "gpt-4-turbo-2024-04-09"
+    #MODEL_VERSION = "gpt-4o-mini"
+    MODEL_VERSION = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 
-    client = openai.OpenAI(
-        api_key=os.getenv("OPENAI_API_KEY"),
-        max_retries=3,
-        timeout=60,
+    client = AzureOpenAI(
+        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+        api_key        = os.getenv("AZURE_OPENAI_API_KEY"),
+        api_version    = os.getenv("AZURE_OPENAI_API_VERSION"),
+        max_retries    = 3
     )
+
+    # client = openai.OpenAI(
+    #     api_key=os.getenv("OPENAI_API_KEY"),
+    #     max_retries=3,
+    #     timeout=60,
+    # )
 
     click_ds = load_dataset("EunsuKim/CLIcK")
 
