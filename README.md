@@ -124,19 +124,18 @@ parser.add_argument("--temperature", type=float, default=0.01)
 
 azure-gpt-4o-mini 벤치마킹 결과 (temperature=0.0)
 ```bash
-                 mean  count
-category                    
-Economy      0.847458     59
-Functional   0.640000    125
-Geography    0.778626    131
-Grammar      0.454167    240
-History      0.468000    250
-Law          0.552511    219
-Politics     0.821429     84
-Pop Culture  0.853659     41
-Society      0.867314    309
-Textual      0.803509    285
-Tradition    0.720721    222
+   category_big     category   correct
+0       Culture      Economy  0.830508
+1       Culture    Geography  0.778626
+2       Culture      History  0.484000
+3       Culture          Law  0.575342
+4       Culture     Politics  0.833333
+5       Culture  Pop Culture  0.853659
+6       Culture      Society  0.857605
+7       Culture    Tradition  0.743243
+8      Language   Functional  0.648000
+9      Language      Grammar  0.425000
+10     Language      Textual  0.807018
 ```
 
 ### Acknowledgement
