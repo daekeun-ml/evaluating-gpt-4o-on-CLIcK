@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 from datasets import load_dataset
 
 from prompts import TYPE_1, TYPE_2, TYPE_3, TYPE_4
-from langchain_openai import AzureChatOpenAI
+from langchain_openai import AzureChatOpenAI, ChatOpenAI
+from langchain_huggingface import HuggingFaceEndpoint
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain.schema.output_parser import StrOutputParser
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate
@@ -90,7 +91,8 @@ def get_prompt(x) -> str:
 
 
 def get_prompt_template():
-    system_prompt = "You are an AI assistant who reads a given question and solves multiple choice questions."
+    system_prompt = """You are an AI assistant who reads a given question and solves multiple choice questions.
+    You don't need to write a detailed explanation of your answer in sentences. Just answer in one word."""
     system_message_template = SystemMessagePromptTemplate.from_template(system_prompt)
     human_prompt = [
         {
@@ -122,20 +124,45 @@ def benchmark(args):
     IS_DEBUG = args.is_debug
     MAX_RETRIES = args.max_retries
     DELAY_INCREMENT = 30
-    MODEL_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
-    MODEL_VERSION = os.getenv("AZURE_OPENAI_MODEL_VERSION")
 
     num_debug_samples = args.num_debug_samples
     batch_size = args.batch_size
     max_tokens = args.max_tokens
     temperature = args.temperature
 
-    llm = AzureChatOpenAI(
-        temperature=temperature, 
-        max_tokens=max_tokens,
-        openai_api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
-        azure_deployment=MODEL_NAME,                   
-    )
+    if args.model_provider == "azureopenai":
+        logger.info("Using Azure OpenAI model provider.")
+        MODEL_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+        API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
+        MODEL_VERSION = os.getenv("OPENAI_MODEL_VERSION")
+        llm = AzureChatOpenAI(
+            azure_deployment=MODEL_NAME,
+            openai_api_version=API_VERSION,
+            temperature=temperature, 
+            max_tokens=max_tokens,
+            max_retries=MAX_RETRIES     
+        ) 
+    elif args.model_provider == "openai":
+        logger.info("Using OpenAI model provider.")
+        MODEL_NAME = os.getenv("OPENAI_DEPLOYMENT_NAME")
+        llm = ChatOpenAI(
+            model=MODEL_NAME,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            max_retries=MAX_RETRIES
+        )
+
+    elif args.model_provider == "huggingface":
+        if temperature == 0.0: # in case of not supporting 0.0 for some SLM, set to 0.01
+            temperature = 0.01 
+        MODEL_NAME = args.hf_model_id.split("/")[-1]
+        logger.info("Using Hugging Face model provider.")
+        llm = HuggingFaceEndpoint(
+            repo_id=args.hf_model_id,
+            temperature=temperature,
+            max_new_tokens=max_tokens,
+            huggingfacehub_api_token=os.getenv("HF_API_TOKEN")
+        )
 
     click_ds = load_dataset("EunsuKim/CLIcK")["train"]
 
@@ -191,11 +218,12 @@ def benchmark(args):
     df = pd.DataFrame(responses)
     os.makedirs("results", exist_ok=True)
     csv_path = f"results/{MODEL_NAME}-{MODEL_VERSION}.csv"
+    logger.info(f"====== Generated CSV file - CSV_PATH: {csv_path} =====")
     df.to_csv(csv_path, index=False)
 
-    logger.info(f"====== [START] Evluation start - CSV_PATH: {csv_path} =====")
+    logger.info(f"====== [START] Evaluation start - CSV_PATH: {csv_path} =====")
     evaluate(csv_path)
-    logger.info(f"====== [START] Evluation end =====")
+    logger.info(f"====== [START] Evaluation end =====")
 
 
 def evaluate(csv_path="results/gpt-4o-mini.csv"):
@@ -239,14 +267,19 @@ def evaluate(csv_path="results/gpt-4o-mini.csv"):
 if __name__ == "__main__":
     load_dotenv()
     parser = argparse.ArgumentParser(description='Options')
-    parser.add_argument("--is_debug", type=bool, default=False)
+
+    parser.add_argument("--is_debug", type=bool, default=True)
     parser.add_argument("--num_debug_samples", type=int, default=10)
+    parser.add_argument("--model_provider", type=str, default="azureopenai")
+    parser.add_argument("--hf_model_id", type=str, default="mistralai/Mistral-7B-Instruct-v0.2")
     parser.add_argument("--batch_size", type=int, default=10)
     parser.add_argument("--max_retries", type=int, default=3)
     parser.add_argument("--max_tokens", type=int, default=256)
-    parser.add_argument("--temperature", type=float, default=0.0)
-
+    parser.add_argument("--temperature", type=float, default=0.01)
+    
     args = parser.parse_args()
+    valid_providers = ["azureopenai", "openai", "huggingface"]
+    assert args.model_provider in valid_providers, f"Invalid model_provider value. Please choose from {valid_providers}."
 
     logger.info(args)
     benchmark(args)

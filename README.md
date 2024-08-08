@@ -82,11 +82,25 @@ pip install -r requirements.txt
 
 1. `.env.sample`을 복사해서 `.env`로 변경한 다음 다음과 같이 환경 변수를 설정해주세요.
 
+Azure OpenAI
 ```ini
 AZURE_OPENAI_ENDPOINT=<YOUR_OPEN_ENDPOINT>
 AZURE_OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
 AZURE_OPENAI_API_VERSION=<YOUR_OPENAI_API_VERSION>
-AZURE_OPENAI_DEPLOYMENT_NAME=<YOUR_DEPLOYMENT_NAME (e.g., gpt-4o-mini)>
+AZURE_OPENAI_DEPLOYMENT_NAME=<YOUR_DEPLOYMENT_NAME> (e.g., gpt-4o-mini)>
+OPENAI_MODEL_VERSION=<YOUR_OPENAI_MODEL_VERSION> (e.g., 2024-07-18)>
+```
+
+OpenAI
+```ini
+OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
+OPENAI_DEPLOYMENT_NAME=<YOUR_OPENAI_API_VERSION>
+OPENAI_MODEL_VERSION=<YOUR_OPENAI_MODEL_VERSION> (e.g., 2024-07-18)>
+```
+
+Hugging Face
+```ini
+HF_API_TOKEN=<YOUR_HF_API_TOKEN>
 ```
 
 2. 다음 명령어를 실행하여 평가를 수행합니다. (이미 결과는 ./results 폴더에 저장되어 있습니다.)
@@ -97,12 +111,15 @@ python main.py
 
 Tunable parameters
 ```python
-parser.add_argument("--is_debug", type=bool, default=False)
+parser.add_argument("--is_debug", type=bool, default=True)
 parser.add_argument("--num_debug_samples", type=int, default=10)
+parser.add_argument("--model_provider", type=str, default="azureopenai")
+parser.add_argument("--hf_model_id", type=str, default="mistralai/Mistral-7B-Instruct-v0.2")
 parser.add_argument("--batch_size", type=int, default=10)
 parser.add_argument("--max_retries", type=int, default=3)
 parser.add_argument("--max_tokens", type=int, default=256)
-parser.add_argument("--temperature", type=float, default=0.0)
+parser.add_argument("--temperature", type=float, default=0.01)
+    
 ```
 
 azure-gpt-4o-mini 벤치마킹 결과 (temperature=0.0)
