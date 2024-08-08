@@ -123,6 +123,7 @@ def benchmark(args):
     MAX_RETRIES = args.max_retries
     DELAY_INCREMENT = 30
     MODEL_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+    MODEL_VERSION = os.getenv("AZURE_OPENAI_MODEL_VERSION")
 
     num_debug_samples = args.num_debug_samples
     batch_size = args.batch_size
@@ -147,6 +148,7 @@ def benchmark(args):
     chain = prompt_template | llm | CustomStrOutputParser()
 
     logger.info(f"====== [START] Generate answers to questions given by LLM. =====")
+    logger.info(f"====== deployment name: {MODEL_NAME}, model version: {MODEL_VERSION} =====")
     t0 = time.time()
 
     with tqdm(total=len(all_batch), desc="Processing Answers") as pbar:
@@ -188,7 +190,7 @@ def benchmark(args):
 
     df = pd.DataFrame(responses)
     os.makedirs("results", exist_ok=True)
-    csv_path = f"results/{MODEL_NAME}.csv"
+    csv_path = f"results/{MODEL_NAME}-{MODEL_VERSION}.csv"
     df.to_csv(csv_path, index=False)
 
     logger.info(f"====== [START] Evluation start - CSV_PATH: {csv_path} =====")
@@ -235,6 +237,7 @@ def evaluate(csv_path="results/gpt-4o-mini.csv"):
 
 
 if __name__ == "__main__":
+    load_dotenv()
     parser = argparse.ArgumentParser(description='Options')
     parser.add_argument("--is_debug", type=bool, default=False)
     parser.add_argument("--num_debug_samples", type=int, default=10)
