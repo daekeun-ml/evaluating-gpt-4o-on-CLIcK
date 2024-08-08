@@ -8,3 +8,5 @@ __pycache__
 **/._.DS_Store
 
 .ipynb_checkpoints/
+test.ipynb
+debug.log
