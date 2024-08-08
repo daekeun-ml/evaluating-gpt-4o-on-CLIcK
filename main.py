@@ -173,6 +173,7 @@ def benchmark(args):
                         break
                 except openai.BadRequestError as e:
                     logger.error(f"BadRequestError: {e}. Skipping this batch.")
+                    logger.info(f"Question: {qna['question']}")
                     break
                 except Exception as e:
                     logger.error(f"Error in process_inputs: {e}")
@@ -200,9 +201,7 @@ def evaluate(csv_path="results/gpt-4o-mini.csv"):
     import glob
     import json
     import pandas as pd
-
-    #result = pd.read_csv("results/gpt-4o-2024-05-13.csv")
-    result = pd.read_csv("results/gpt-4o-mini.csv")
+    result = pd.read_csv(csv_path)
 
     # print(result.head())
 
