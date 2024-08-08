@@ -1,0 +1,11 @@
+id,trial,answer,pred,response
+KIIP_economy_1,0,C,B,B
+KIIP_economy_2,0,A,A,A
+KIIP_economy_3,0,C,C,C
+KIIP_economy_4,0,D,D,D
+KIIP_economy_5,0,C,C,C
+KIIP_economy_6,0,B,B,B
+KIIP_economy_7,0,B,B,B
+KIIP_economy_8,0,A,A,A
+KIIP_economy_9,0,C,A,A
+KIIP_economy_10,0,C,C,C

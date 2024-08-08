@@ -18066,3 +18066,8 @@ id: TK_2022_45 (2), answer: A, pred: A, response: A
 id: TK_2022_46 (0), answer: C, pred: C, response: C
 id: TK_2022_46 (1), answer: C, pred: C, response: C
 id: TK_2022_46 (2), answer: C, pred: C, response: C
+2024-08-08 11:34:05,560 - logger - INFO - Namespace(is_debug=True, num_debug_samples=10, batch_size=10, max_retries=3, max_tokens=256, temperature=0.0)
+2024-08-08 11:34:11,510 - logger - INFO - ====== [START] Generate answers to questions given by LLM. =====
+2024-08-08 11:34:12,625 - logger - INFO - ===== [DONE] Generating Answer dataset took 0.0 hours 0.0 minutes 1.1141 seconds.
+2024-08-08 11:34:12,634 - logger - INFO - ====== [START] Evluation start - CSV_PATH: results/gpt-4o-mini.csv =====
+2024-08-08 11:34:12,782 - logger - INFO - ====== [START] Evluation end =====

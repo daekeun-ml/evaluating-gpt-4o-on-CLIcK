@@ -4,20 +4,23 @@ import glob
 import json
 import pandas as pd
 
-result = pd.read_csv("results/gpt-4o-2024-05-13.csv")
+#result = pd.read_csv("results/gpt-4o-2024-05-13.csv")
+result = pd.read_csv("results/gpt-4o-mini.csv")
+
+# print(result.head())
 
 file_dict = {
-    "History": "../CLIcK/Dataset/Culture/Korean History",
-    "Geography": "../CLIcK/Dataset/Culture/Korean Geography",
-    "Law": "../CLIcK/Dataset/Culture/Korean Law",
-    "Politics": "../CLIcK/Dataset/Culture/Korean Politics",
-    "Society": "../CLIcK/Dataset/Culture/Korean Society",
-    "Tradition": "../CLIcK/Dataset/Culture/Korean Tradition",
-    "Economy": "../CLIcK/Dataset/Culture/Korean Economy",
-    "Pop Culture": "../CLIcK/Dataset/Culture/Korean Popular",
-    "Textual": "../CLIcK/Dataset/Language/Textual",
-    "Functional": "../CLIcK/Dataset/Language/Functional",
-    "Grammar": "../CLIcK/Dataset/Language/Grammar",
+    "History": "CLIcK/Dataset/Culture/Korean History",
+    "Geography": "CLIcK/Dataset/Culture/Korean Geography",
+    "Law": "CLIcK/Dataset/Culture/Korean Law",
+    "Politics": "CLIcK/Dataset/Culture/Korean Politics",
+    "Society": "CLIcK/Dataset/Culture/Korean Society",
+    "Tradition": "CLIcK/Dataset/Culture/Korean Tradition",
+    "Economy": "CLIcK/Dataset/Culture/Korean Economy",
+    "Pop Culture": "CLIcK/Dataset/Culture/Korean Popular",
+    "Textual": "CLIcK/Dataset/Language/Textual",
+    "Functional": "CLIcK/Dataset/Language/Functional",
+    "Grammar": "CLIcK/Dataset/Language/Grammar",
 }
 
 id_to_category = {}
