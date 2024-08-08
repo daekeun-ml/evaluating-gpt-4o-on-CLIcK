@@ -1,5 +1,10 @@
 # Evaluate GPT-4o on CLIcK
 
+### Notes 
+We modified the code to run on Azure OpenAI and added logic for parallel processing, content filtering (400 error), and max request error (429 error) exception handling.
+
+### Overview
+
 한국에 대한 문화적 지식과 언어적 지능을 평가하는 CLIcK 데이터셋에 대해 GPT-4o, GPT-4-turbo를 평가해보았습니다. 어떤 프롬프트를 사용하냐에 따라서도 성능 차이가 날 수 있기에 논문에서 사용한 프롬프트와 실험 방법을 그대로 사용하였습니다.
 
 추가적인 분석을 하고 싶으실 수도 있을 것 같아서, 평가 코드와 평가를 위해 수집한 LLM 응답을 csv 파일로 저장해두었습니다.
@@ -7,12 +12,6 @@
 👉 Learn more about **CLIcK** - [paper](https://arxiv.org/abs/2403.06412), [repository](https://github.com/rladmstn1714/CLIcK/blob/main/README.md), [huggingface](https://huggingface.co/datasets/EunsuKim/CLIcK)
 
 ## Results
-
-> [!IMPORTANT]
-> * 원 논문에서 SOTA 였던 GPT-3.5, Claude 2 모델과 GPT-4-turbo, GPT-4o를 비교해보았습니다. GPT-4-turbo만 하더라도 GPT-3.5, Claude 2를 크게 이겼는데, GPT-4o는 GPT-4-turbo도 이겼습니다.
-> * 이렇게까지 차이가 날줄은 예상하지 못했는데요. GPT-4o가 가히 압도적으로 GPT-4-turbo를 모든 카테고리에서 이겼습니다. Average 값만 보아도 정말 큰 향상이 이뤄진 것을 알 수 있습니다.
-
-**Conclusion: GPT-4o가 한국어, 한국 문화에 대해서도 성능이 많이 늘었다는 걸 체감해볼 수 있었습니다. GPT-4o를 쓰지 않을 이유가 없네요.**
 
 ### Korean Culture
 
@@ -82,11 +81,13 @@ id: KIIP_society_111 (1), answer: D, pred: D, response: D: 신분증
 pip install -r requirements.txt
 ```
 
-1. `.env` 파일을 만들어서 다음과 같이 환경 변수를 설정해주세요.
+1. `.env.sample`을 복사해서 `.env`로 변경한 다음 다음과 같이 환경 변수를 설정해주세요.
 
 ```ini
-OPENAI_API_KEY=<YOUR_OPEN_API_KEY>
-MODEL_VERSION=gpt-4o-2024-05-13
+AZURE_OPENAI_ENDPOINT=<YOUR_OPEN_ENDPOINT>
+AZURE_OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
+AZURE_OPENAI_API_VERSION=<YOUR_OPENAI_API_VERSION>
+AZURE_OPENAI_DEPLOYMENT_NAME=<YOUR_DEPLOYMENT_NAME (e.g., gpt-4o-mini)>
 ```
 
 2. 다음 명령어를 실행하여 평가를 수행합니다. (이미 결과는 ./results 폴더에 저장되어 있습니다.)
@@ -95,23 +96,31 @@ MODEL_VERSION=gpt-4o-2024-05-13
 python main.py
 ```
 
-3. 결과를 계산하기 위해 `eval.py` 를 실행합니다.
+Tunable parameters
+```python
+parser.add_argument("--is_debug", type=bool, default=False)
+parser.add_argument("--num_debug_samples", type=int, default=10)
+parser.add_argument("--batch_size", type=int, default=10)
+parser.add_argument("--max_retries", type=int, default=3)
+parser.add_argument("--max_tokens", type=int, default=256)
+parser.add_argument("--temperature", type=float, default=0.0)
+```
 
+azure-gpt-4o-mini 벤치마킹 결과 (temperature=0.0)
 ```bash
-❯ python eval.py
                  mean  count
 category                    
-Economy      0.932203    177
-Functional   0.834667    375
-Geography    0.814249    393
-Grammar      0.569444    720
-History      0.651190    840
-Law          0.681887    657
-Politics     0.892857    252
-Pop Culture  0.975610    123
-Society      0.912621    927
-Textual      0.912281    855
-Tradition    0.861862    666
+Economy      0.847458     59
+Functional   0.640000    125
+Geography    0.778626    131
+Grammar      0.454167    240
+History      0.468000    250
+Law          0.552511    219
+Politics     0.821429     84
+Pop Culture  0.853659     41
+Society      0.867314    309
+Textual      0.803509    285
+Tradition    0.720721    222
 ```
 
 ### Acknowledgement
